@@ -8,3 +8,8 @@ class Solution:
                 i += 1
 
         return i
+
+#        for num in nums:
+#            while nums.count(num)>2:
+#                nums.remove(num)
+#        return len(nums)
