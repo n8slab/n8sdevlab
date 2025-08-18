@@ -5,8 +5,8 @@ class Solution(object):
         :rtype: bool
         """
         #initial case to skip extra calculations for duds
-        if s == " " or s=="":
-            return True
+        #if s == " " or s=="":
+        #    return True
         
         # Convert string to alphanumeric only
         # start with placeholders for comparison
