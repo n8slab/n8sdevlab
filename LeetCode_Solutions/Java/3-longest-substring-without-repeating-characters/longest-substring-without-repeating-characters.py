@@ -4,6 +4,9 @@ class Solution(object):
         :type s: str
         :rtype: int
         """
+        if len(s)<=1:
+            return len(s)
+        
         maxLen = 0
         charSet = set()
         n = len(s)
