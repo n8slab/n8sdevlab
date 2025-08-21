@@ -5,8 +5,8 @@ class Solution(object):
         :type k: int
         :rtype: float
         """
-        #if k==len(nums):
-        #    return sum(nums)/float(k)
+        if k==len(nums):
+            return sum(nums)/float(k)
         
         curSum = sum(nums[:k])
         curMax = curSum
