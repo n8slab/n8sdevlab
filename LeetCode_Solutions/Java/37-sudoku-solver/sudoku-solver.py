@@ -4,35 +4,40 @@ class Solution(object):
         :type board: List[List[str]]
         :rtype: None Do not return anything, modify board in-place instead.
         """
-        self.row = [[False] * 9 for _ in range(9)]
-        self.col = [[False] * 9 for _ in range(9)]
-        self.box = [[False] * 9 for _ in range(9)]
-        
+        rows = [set() for _ in range(9)]
+        cols = [set() for _ in range(9)]
+        boxes = [set() for _ in range(9)]
+        empties = []
+
         for i in range(9):
             for j in range(9):
-                if board[i][j] != '.':
-                    num = int(board[i][j]) - 1
-                    self.row[i][num] = self.col[j][num] = self.box[(i // 3) * 3 + j // 3][num] = True
-        
-        self.backtrack(board, 0, 0)
-    
-    def backtrack(self, board, r, c):
-        if r == 9:
-            return True
-        if c == 9:
-            return self.backtrack(board, r + 1, 0)
-        if board[r][c] != '.':
-            return self.backtrack(board, r, c + 1)
-        
-        for num in range(9):
-            if not self.row[r][num] and not self.col[c][num] and not self.box[(r // 3) * 3 + c // 3][num]:
-                board[r][c] = str(num + 1)
-                self.row[r][num] = self.col[c][num] = self.box[(r // 3) * 3 + c // 3][num] = True
-                
-                if self.backtrack(board, r, c + 1):
-                    return True
-                
-                board[r][c] = '.'
-                self.row[r][num] = self.col[c][num] = self.box[(r // 3) * 3 + c // 3][num] = False
-        
-        return False
+                if board[i][j] == '.':
+                    empties.append((i, j))
+                else:
+                    num = board[i][j]
+                    rows[i].add(num)
+                    cols[j].add(num)
+                    boxes[(i // 3) * 3 + j // 3].add(num)
+
+        def backtrack(k=0):
+            if k == len(empties):
+                return True
+            r, c = empties[k]
+            b = (r // 3) * 3 + c // 3
+            for num in "123456789":
+                if num not in rows[r] and num not in cols[c] and num not in boxes[b]:
+                    board[r][c] = num
+                    rows[r].add(num)
+                    cols[c].add(num)
+                    boxes[b].add(num)
+
+                    if backtrack(k + 1):
+                        return True
+
+                    board[r][c] = '.'
+                    rows[r].remove(num)
+                    cols[c].remove(num)
+                    boxes[b].remove(num)
+            return False
+
+        backtrack()
