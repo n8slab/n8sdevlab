@@ -4,40 +4,55 @@ class Solution(object):
         :type board: List[List[str]]
         :rtype: None Do not return anything, modify board in-place instead.
         """
-        r = [0] * 9
-        c = [0] * 9
-        b = [0] * 9
-        e_c = []
-        for i in range(9):
-            for j in range(9):
-                if board[i][j] != '.':
-                    num = int(board[i][j])
-                    test = 1 << (num - 1)
-                    r[i] |= test
-                    c[j] |= test
-                    b[(i // 3) * 3 + (j // 3)] |= test
-                else:
-                    e_c.append((i, j))
+        rows = [set() for _ in range(9)]
+        cols = [set() for _ in range(9)]
+        boxes = [set() for _ in range(9)]
+        empties = []
 
-        def backtrack(index):
-            if index == len(e_c):
+        # Fill initial sets + track empty cells
+        for r in range(9):
+            for c in range(9):
+                if board[r][c] != '.':
+                    ch = board[r][c]
+                    rows[r].add(ch)
+                    cols[c].add(ch)
+                    boxes[(r//3)*3 + (c//3)].add(ch)
+                else:
+                    empties.append((r, c))
+
+        def solve():
+            if not empties:
                 return True
-            i, j = e_c[index]
-            b_i = (i // 3) * 3 + (j // 3)
-            used_numbers = r[i] | c[j] | b[b_i]
-            for num in range(1, 10):
-                test = 1 << (num - 1)
-                if not (used_numbers & test):
-                    board[i][j] = str(num)
-                    r[i] |= test
-                    c[j] |= test
-                    b[b_i] |= test
-                    if backtrack(index + 1):
-                        return True
-                    board[i][j] = '.'
-                    r[i] ^= test
-                    c[j] ^= test
-                    b[b_i] ^= test
+
+            # Instead of sorting, find the best empty cell directly
+            best_idx, best_options = -1, None
+            for i, (r, c) in enumerate(empties):
+                box_idx = (r//3)*3 + (c//3)
+                options = {"1","2","3","4","5","6","7","8","9"} - rows[r] - cols[c] - boxes[box_idx]
+                if best_options is None or len(options) < len(best_options):
+                    best_idx, best_options = i, options
+                    if len(best_options) == 1:  # early stop if only 1 option
+                        break
+
+            r, c = empties.pop(best_idx)
+            box_idx = (r//3)*3 + (c//3)
+
+            for ch in best_options:
+                board[r][c] = ch
+                rows[r].add(ch)
+                cols[c].add(ch)
+                boxes[box_idx].add(ch)
+
+                if solve():
+                    return True
+
+                # Backtrack
+                board[r][c] = '.'
+                rows[r].remove(ch)
+                cols[c].remove(ch)
+                boxes[box_idx].remove(ch)
+
+            empties.insert(best_idx, (r, c))
             return False
 
-        backtrack(0)
+        solve()
